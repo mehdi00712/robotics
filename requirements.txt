@@ -1,0 +1,10 @@
+# Core
+ultralytics>=8.3        # YOLO classification (installs PyTorch)
+opencv-python>=4.9      # webcam capture and image I/O
+numpy>=1.26
+# Evaluation and plots
+scikit-learn>=1.4
+matplotlib>=3.8
+pandas>=2.1
+# Testing
+pytest>=8.0

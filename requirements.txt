@@ -1,11 +1,17 @@
-# Core
-ultralytics>=8.3        # YOLO classification (installs PyTorch)
-opencv-python>=4.9      # webcam capture and image I/O
+# Office Item Classifier - Python dependencies
+# Install with:  pip install -r requirements.txt   (Python 3.10-3.12)
+
+# Core: model training and inference
+ultralytics>=8.3        # YOLO11 classification models (also installs PyTorch + torchvision)
+opencv-python>=4.9      # webcam capture, image loading and display windows
+
+# Data handling
 numpy>=1.26
-# Evaluation and plots
-scikit-learn>=1.4
-matplotlib>=3.8
-pandas>=2.1
+
+# Evaluation: metrics, confusion matrix and plots
+scikit-learn>=1.4       # accuracy, macro-F1, classification report, confusion matrix
+matplotlib>=3.8         # confusion-matrix and result plots
+pandas>=2.1             # result tables (CSV)
+
 # Testing
-pytest>=8.0
-fiftyone>=1.0
+pytest>=8.0             # automated tests in tests/

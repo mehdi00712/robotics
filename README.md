@@ -213,6 +213,15 @@ in an unseen room to measure robustness.
 
 ---
 
+### Desktop app
+    python src/app.py
+Open an image (O), open a folder (F, browse with the arrow keys), or start the webcam (C).
+The panel shows the predicted class, its confidence and the top-3 classes.
+Predictions below the threshold slider (default 0.70) are shown as "uncertain".
+Save snapshot (S) writes the annotated image to results/snapshots/.
+
+---
+
 ## References
 
 - Jocher, G. and Qiu, J. (2024) *Ultralytics YOLO11*. Available at: https://github.com/ultralytics/ultralytics.

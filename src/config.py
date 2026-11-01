@@ -5,14 +5,13 @@ Keeping the class list and folder paths in one place means every script
 """
 from pathlib import Path
 
-# The eight office-item classes recognised by the classifier (alphabetical).
+# The seven office-item classes recognised by the classifier (alphabetical).
 CLASSES = [
     "book",
     "bottle",
     "keyboard",
     "mouse",
     "mug",
-    "notebook",
     "phone",
     "stapler",
 ]

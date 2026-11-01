@@ -8,3 +8,4 @@ matplotlib>=3.8
 pandas>=2.1
 # Testing
 pytest>=8.0
+fiftyone>=1.0

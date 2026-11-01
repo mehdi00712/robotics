@@ -1,0 +1,54 @@
+{
+  "num_images": 249,
+  "accuracy": 0.8192771084337349,
+  "macro_f1": 0.8274455511206663,
+  "weighted_f1": 0.8164213803642486,
+  "below_threshold": 36,
+  "threshold": 0.7,
+  "per_class": {
+    "book": {
+      "precision": 0.8043478260869565,
+      "recall": 0.74,
+      "f1": 0.7708333333333334,
+      "support": 50
+    },
+    "bottle": {
+      "precision": 0.8292682926829268,
+      "recall": 0.68,
+      "f1": 0.7472527472527473,
+      "support": 50
+    },
+    "keyboard": {
+      "precision": 0.8285714285714286,
+      "recall": 0.9666666666666667,
+      "f1": 0.8923076923076924,
+      "support": 30
+    },
+    "mouse": {
+      "precision": 0.875,
+      "recall": 0.9333333333333333,
+      "f1": 0.9032258064516129,
+      "support": 30
+    },
+    "mug": {
+      "precision": 0.7777777777777778,
+      "recall": 0.9333333333333333,
+      "f1": 0.8484848484848485,
+      "support": 30
+    },
+    "phone": {
+      "precision": 0.7575757575757576,
+      "recall": 0.8333333333333334,
+      "f1": 0.7936507936507936,
+      "support": 30
+    },
+    "stapler": {
+      "precision": 0.8846153846153846,
+      "recall": 0.7931034482758621,
+      "f1": 0.8363636363636363,
+      "support": 29
+    }
+  },
+  "ms_per_image": 48.85758755001123,
+  "data": "C:\\Users\\mbhoy\\OneDrive\\Desktop\\robotics_office_item_classifier\\data\\split\\test"
+}

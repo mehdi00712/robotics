@@ -6,3 +6,7 @@ runs/
 yolo11n-cls.pt
 data/split/
 results/train/weights/
+results_v1/train/weights/
+results_v2/train/weights/
+yolo11s-cls.pt
+results/

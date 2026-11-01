@@ -1,0 +1,54 @@
+{
+  "num_images": 249,
+  "accuracy": 0.8192771084337349,
+  "macro_f1": 0.8153644352094421,
+  "weighted_f1": 0.817072203291894,
+  "below_threshold": 67,
+  "threshold": 0.7,
+  "per_class": {
+    "book": {
+      "precision": 0.8269230769230769,
+      "recall": 0.86,
+      "f1": 0.8431372549019608,
+      "support": 50
+    },
+    "bottle": {
+      "precision": 0.8444444444444444,
+      "recall": 0.76,
+      "f1": 0.8,
+      "support": 50
+    },
+    "keyboard": {
+      "precision": 0.9666666666666667,
+      "recall": 0.9666666666666667,
+      "f1": 0.9666666666666667,
+      "support": 30
+    },
+    "mouse": {
+      "precision": 0.5769230769230769,
+      "recall": 1.0,
+      "f1": 0.7317073170731707,
+      "support": 30
+    },
+    "mug": {
+      "precision": 0.9375,
+      "recall": 1.0,
+      "f1": 0.967741935483871,
+      "support": 30
+    },
+    "phone": {
+      "precision": 0.95,
+      "recall": 0.6333333333333333,
+      "f1": 0.76,
+      "support": 30
+    },
+    "stapler": {
+      "precision": 0.8333333333333334,
+      "recall": 0.5172413793103449,
+      "f1": 0.6382978723404256,
+      "support": 29
+    }
+  },
+  "ms_per_image": 21.400104418030406,
+  "data": "C:\\Users\\mbhoy\\OneDrive\\Desktop\\robotics_office_item_classifier\\data\\split\\test"
+}

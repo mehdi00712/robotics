@@ -6,7 +6,7 @@ Usage (from the repository root, with the virtual environment active):
     python src/capture.py --room office --session s02 --camera 1
 
 Controls in the camera window:
-    1-8      choose the class you are photographing (shown on screen)
+    1-7      choose the class you are photographing (shown on screen)
     SPACE    save one photo of the current frame
     B        start/stop burst mode (saves a photo every --interval seconds,
              move the object or camera slowly between shots)
@@ -91,7 +91,7 @@ def draw_overlay(display, current, counts, burst, room, session):
     cv2.putText(display, status, (10, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                 (0, 0, 255) if burst else (200, 255, 200), 1, cv2.LINE_AA)
     if current is None:
-        cv2.putText(display, "Press 1-8 to choose a class", (10, h - 20),
+        cv2.putText(display, "Press 1-7 to choose a class", (10, h - 20),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2, cv2.LINE_AA)
 
 
@@ -109,7 +109,7 @@ def main():
     counts = count_images()
     current, burst, last_shot, flash_until = None, False, 0.0, 0.0
     window = "Office item capture"
-    print("Camera open. Press 1-8 to pick a class, SPACE to save, B for burst, Q to quit.")
+    print("Camera open. Press 1-7 to pick a class, SPACE to save, B for burst, Q to quit.")
 
     while True:
         ok, frame = cap.read()
@@ -139,7 +139,7 @@ def main():
             print(f"class -> {current}")
         elif key == ord(" "):
             if current is None:
-                print("Choose a class first (keys 1-8).")
+                print("Choose a class first (keys 1-7).")
             else:
                 path = save_frame(frame, current, room, session)
                 counts[current] += 1
@@ -147,7 +147,7 @@ def main():
                 print(f"saved {path.name}")
         elif key == ord("b"):
             if current is None:
-                print("Choose a class first (keys 1-8).")
+                print("Choose a class first (keys 1-7).")
             else:
                 burst = not burst
                 print("burst on" if burst else "burst off")

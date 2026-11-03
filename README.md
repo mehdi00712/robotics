@@ -6,7 +6,7 @@ live webcam, and reports the predicted class with its confidence.
 - **Classes (7):** book · bottle · keyboard · mouse · mug · phone · stapler
 - **Model:** YOLO11s-cls (Ultralytics), pretrained on ImageNet and fine-tuned on our dataset
 - **Team:** Muhammad Mehdi Bhoyroo (M00983496), Ayush Joyram (M01013889), Aba Nuni Ssenyange (M00956871)
-- **Demo video:** will be added soon
+- **Demo video:** https://youtu.be/C6_ivNO-shg
 - **Release:** https://github.com/mehdi00712/robotics/releases/tag/v1.0
 
 ---

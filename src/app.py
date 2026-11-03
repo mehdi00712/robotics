@@ -1,14 +1,3 @@
-"""Desktop app for the office-item classifier.
-
-Usage:
-    python src/app.py                      # uses models/best.pt
-    python src/app.py --weights models/best_v1_yolo11n.pt
-
-Buttons: open an image, open a folder (step through with Prev/Next or the arrow
-keys), start/stop the webcam, save a snapshot. The threshold slider sets the
-confidence below which a prediction is shown as "uncertain".
-Keys: O open image, F open folder, C camera on/off, S snapshot, Left/Right browse, Esc quit.
-"""
 import argparse
 import sys
 import time
@@ -18,12 +7,45 @@ from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
 import cv2
+import numpy as np
 from PIL import Image, ImageTk
 
-from config import CLASSES, IMAGE_EXTENSIONS, RESULTS_DIR
+from config import CLASSES, IMAGE_EXTENSIONS, RESULTS_DIR, SPLIT_DIR
 
 PREVIEW_W, PREVIEW_H = 640, 480
 GREEN, ORANGE, GREY = "#2e9e44", "#e08a00", "#9a9a9a"
+APP_EXTENSIONS = set(IMAGE_EXTENSIONS) | {".jfif", ".tif", ".tiff", ".heic", ".heif", ".avif"}
+FILE_TYPES = [("All files", "*.*"),
+              ("Images", "*.jpg *.jpeg *.png *.bmp *.webp *.jfif *.tif *.tiff *.heic *.heif *.avif")]
+
+try:
+    from pillow_heif import register_heif_opener
+    register_heif_opener()
+except ImportError:
+    pass
+
+
+def read_image(path):
+    """Read any image as BGR, also with non-English characters in the path."""
+    try:
+        frame = cv2.imdecode(np.fromfile(str(path), dtype=np.uint8), cv2.IMREAD_COLOR)
+    except OSError:
+        return None
+    if frame is not None:
+        return frame
+    try:
+        rgb = np.array(Image.open(path).convert("RGB"))
+    except Exception:
+        return None
+    return cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
+
+
+def focus_box(frame, fraction=0.6):
+    """Return (x0, y0, x1, y1) of a centred square covering `fraction` of the shorter side."""
+    h, w = frame.shape[:2]
+    side = int(min(h, w) * fraction)
+    x0, y0 = (w - side) // 2, (h - side) // 2
+    return x0, y0, x0 + side, y0 + side
 
 
 def fit_to_box(frame, max_w=PREVIEW_W, max_h=PREVIEW_H):
@@ -102,6 +124,9 @@ class App:
         self.cam_index.delete(0, "end")
         self.cam_index.insert(0, str(camera_index))
         self.cam_index.pack(side="left")
+        self.use_box = tk.BooleanVar(value=True)
+        tk.Checkbutton(side, text="Camera: classify only the focus box", variable=self.use_box,
+                       bg="#f4f4f4", activebackground="#f4f4f4").pack(anchor="w")
         ttk.Button(side, text="Save snapshot  (S)", command=self.snapshot, width=26).pack(anchor="w", pady=2)
 
         ttk.Separator(side).pack(fill="x", pady=10)
@@ -135,7 +160,8 @@ class App:
             return
         self.status.configure(text=f"Model: {self.weights.name}   |   ready")
 
-    def classify(self, frame):
+    def classify(self, frame, display=None):
+        """Classify `frame`; show `display` (or the frame itself) in the preview."""
         if self.clf is None:
             self.status.configure(text="Model is not loaded yet.")
             return
@@ -143,7 +169,7 @@ class App:
         probs = self.clf.predict([frame])[0]
         ms = (time.perf_counter() - start) * 1000
         self.last_frame, self.last_top = frame, self.clf.top_k(probs, 3)
-        self.show_image(frame)
+        self.show_image(frame if display is None else display)
         self.show_result()
         info = f"Model: {self.weights.name}   |   {ms:.0f} ms per prediction"
         if self.running and self.fps:
@@ -173,22 +199,24 @@ class App:
             pct.configure(text=f"{c * 100:.0f}%")
 
     # ----------------------------------------------------------------- files
+    def start_dir(self):
+        test = SPLIT_DIR / "test"
+        return str(test if test.exists() else Path.home())
+
     def open_image(self):
-        path = filedialog.askopenfilename(
-            title="Choose an image",
-            filetypes=[("Images", "*.jpg *.jpeg *.png *.bmp *.webp"), ("All files", "*.*")])
+        path = filedialog.askopenfilename(title="Choose an image", initialdir=self.start_dir(), filetypes=FILE_TYPES)
         if path:
             self.stop_camera()
             self.paths, self.index = [Path(path)], 0
             self.show_path()
 
     def open_folder(self):
-        folder = filedialog.askdirectory(title="Choose a folder of images")
+        folder = filedialog.askdirectory(title="Choose a folder of images", initialdir=self.start_dir())
         if not folder:
             return
-        paths = sorted(p for p in Path(folder).iterdir() if p.suffix.lower() in IMAGE_EXTENSIONS)
+        paths = sorted(p for p in Path(folder).iterdir() if p.suffix.lower() in APP_EXTENSIONS)
         if not paths:
-            messagebox.showinfo("No images", "That folder has no .jpg/.png/.bmp/.webp images.")
+            messagebox.showinfo("No images", "That folder has no image files.")
             return
         self.stop_camera()
         self.paths, self.index = paths, 0
@@ -202,9 +230,10 @@ class App:
 
     def show_path(self):
         path = self.paths[self.index]
-        frame = cv2.imread(str(path))
+        frame = read_image(path)
         if frame is None:
-            messagebox.showerror("Cannot open image", f"Could not read {path.name}")
+            hint = "\nFor iPhone .heic photos run:  pip install pillow-heif" if path.suffix.lower() in (".heic", ".heif") else ""
+            messagebox.showerror("Cannot open image", f"Could not read {path.name}{hint}")
             return
         self.position.configure(text=f"{self.index + 1} / {len(self.paths)}:  {path.name}")
         self.classify(frame)
@@ -249,7 +278,15 @@ class App:
                 inst = 1.0 / max(now - self.last_time, 1e-6)
                 self.fps = inst if not self.fps else 0.9 * self.fps + 0.1 * inst
             self.last_time = now
-            self.classify(frame)
+            if self.use_box.get():
+                x0, y0, x1, y1 = focus_box(frame)
+                display = frame.copy()
+                cv2.rectangle(display, (x0, y0), (x1, y1), (60, 200, 60), 3)
+                cv2.putText(display, "hold the item inside the box", (x0, max(25, y0 - 10)),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (60, 200, 60), 2, cv2.LINE_AA)
+                self.classify(frame[y0:y1, x0:x1].copy(), display)
+            else:
+                self.classify(frame)
         self.root.after(10, self.camera_loop)
 
     # -------------------------------------------------------------- snapshot

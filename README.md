@@ -3,9 +3,11 @@
 Recognises **one office item per image** from an image file, a folder of images or a
 live webcam, and reports the predicted class with its confidence.
 
-**Classes (7):** book · bottle · keyboard · mouse · mug · phone · stapler
-**Model:** YOLO11s-cls (Ultralytics), pretrained on ImageNet and fine-tuned on our dataset
-**Team:** Muhammad Mehdi Bhoyroo (M00983496), Ayush Joyram (M01013889), Aba Nuni Ssenyange (M00956871)
+- **Classes (7):** book · bottle · keyboard · mouse · mug · phone · stapler
+- **Model:** YOLO11s-cls (Ultralytics), pretrained on ImageNet and fine-tuned on our dataset
+- **Team:** Muhammad Mehdi Bhoyroo (M00983496), Ayush Joyram (M01013889), Aba Nuni Ssenyange (M00956871)
+- **Demo video:** will be added soon
+- **Release:** https://github.com/mehdi00712/robotics/releases/tag/v1.0
 
 ---
 
@@ -92,6 +94,21 @@ picture, ideally against a plain background.
 Options: `--threshold 0.6` (change the uncertain limit), `--top 5`,
 `--weights models/best_v1_yolo11n.pt` (use the smaller, faster v1 model).
 
+### 4. Desktop app (recommended)
+
+    python src/app.py
+
+- **Open image (O)** / **Open folder (F)** – the file window starts in `data/split/test`;
+  browse a folder with the arrow keys or Prev/Next.
+- **Start camera (C)** – live classification. Only the green **focus box** in the
+  middle of the picture is classified, so the background does not affect the result
+  (untick "classify only the focus box" to use the whole frame).
+- The panel shows the predicted class, its confidence and the top-3 classes.
+  Predictions below the **threshold slider** (default 0.70) are shown as "uncertain".
+- **Save snapshot (S)** writes the annotated image to `results/snapshots/`.
+- Reads .jpg, .png, .bmp, .webp, .jfif, .tif and .avif; iPhone .heic photos work after
+  `pip install pillow-heif` (optional).
+
 ---
 
 ## Reproducing the full pipeline
@@ -132,7 +149,8 @@ Options: `--threshold 0.6` (change the uncertain limit), `--top 5`,
     src/train.py                      fine-tunes YOLO11-cls
     src/evaluate.py                   accuracy, macro-F1, confusion matrix, error images
     src/classifier.py                 model wrapper used by evaluate.py and predict.py
-    src/predict.py                    interface: image, folder or webcam
+    src/predict.py                    command-line interface: image, folder or webcam
+    src/app.py                        desktop app (Tkinter): image, folder or webcam with confidence bars
     tests/                            pytest tests (10 tests)
     results_v1/, results_v2/          metrics, plots and misclassified examples
 
@@ -189,6 +207,13 @@ Options: `--threshold 0.6` (change the uncertain limit), `--top 5`,
 - **Closed-set behaviour:** with no item in view the model still predicts one of the
   seven classes (e.g. "book" from a bookshelf in the background of a webcam frame).
   A "no item" class would fix this; the app's "uncertain" label reduces the problem.
+- **Live webcam vs test set (domain shift).** On the live webcam the first version of
+  the app classified the whole frame, and the model mostly answered book, stapler or
+  keyboard. Two causes: the background (bookshelf, desk) filled most of the picture,
+  and the only webcam-style training images were our own staplers, so the model linked
+  the "webcam look" with stapler. Classifying only a centred focus box fixed most of
+  this; adding webcam photos of every class (`src/capture.py`) and retraining is the
+  next step.
 
 **Possible improvements:** more webcam photos of every class (to reduce the domain gap
 between internet photos and the robot's camera), more stapler images, a "no item /
@@ -210,15 +235,9 @@ in an unseen room to measure robustness.
 | Training is slow / "Slow image access" warning | Keep the project outside OneDrive/network drives, or lower `--batch`. |
 | Training crashes with DataLoader errors on Windows | Add `--workers 0`. |
 | Download stops or saves 0 crops | Re-run the same command – it resumes; check your internet connection. |
-
----
-
-### Desktop app
-    python src/app.py
-Open an image (O), open a folder (F, browse with the arrow keys), or start the webcam (C).
-The panel shows the predicted class, its confidence and the top-3 classes.
-Predictions below the threshold slider (default 0.70) are shown as "uncertain".
-Save snapshot (S) writes the annotated image to results/snapshots/.
+| App's "Open image" window shows no files | Choose "All files" in the type list; OneDrive "online-only" files (red ✕ / cloud icon) must be downloaded first – right-click the folder → *Always keep on this device*. |
+| `Could not read photo.heic` | `pip install pillow-heif` (iPhone photos). |
+| Webcam keeps predicting the same class | Keep the item inside the green box, close to the camera, on a plain background with good light. |
 
 ---
 
